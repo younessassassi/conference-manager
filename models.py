@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-"""models.py
+"""
+models.py.
 
 Udacity conference server-side Python App Engine data & ProtoRPC models
 
@@ -17,7 +18,7 @@ import endpoints
 from protorpc import messages
 from google.appengine.ext import ndb
 
-sessionTypeChoices = ['lecture', 'keynote', 'workshop']
+sessionTypeChoices = ['Lecture', 'Keynote', 'Workshop']
 
 
 class Profile(ndb.Model):
@@ -151,13 +152,21 @@ class StringMessage(messages.Message):
     data = messages.StringField(1, required=True)
 
 
-class Person(ndb.Model):
+# class Person(ndb.Model):
 
-    """Person -- Person Object."""
+#     """Person -- Person Object."""
 
-    name = ndb.StringProperty(required=True)
-    email = ndb.StringProperty()
-    sessionsKeys = ndb.StringProperty(repeated=True)
+#     name = ndb.StringProperty(required=True)
+#     email = ndb.StringProperty()
+#     sessionsKeys = ndb.StringProperty(repeated=True)
+
+
+# class PersonForm(messages.Message):
+
+#     """PersonForm -- Person outbound form message."""
+
+#     name = messages.StringField(1)
+#     email = messages.StringField(2)
 
 
 class Session(ndb.Model):
@@ -166,7 +175,7 @@ class Session(ndb.Model):
 
     name = ndb.StringProperty(required=True)
     highlights = ndb.StringProperty(repeated=True)
-    speaker = ndb.StructuredProperty(Person)
+    speaker = ndb.StringProperty()
     duration = ndb.IntegerProperty()
     typeOfSession = ndb.StringProperty(choices=sessionTypeChoices)
     date = ndb.DateProperty()
@@ -179,10 +188,38 @@ class SessionForm(messages.Message):
 
     name = messages.StringField(1)
     highlights = messages.StringField(2, repeated=True)
-    speaker = messages.IntegerField(3)
+    speaker = messages.StringField(3)
     duration = messages.IntegerField(4)
     typeOfSession = messages.StringField(5)
-    date = messages.IntegerField(6)
+    date = messages.StringField(6)
     startTime = messages.IntegerField(7)
-    # websafeKey      = messages.StringField(8)
+    # websafeKey = messages.StringField(8)
+    # speakerDisplayName = messages.StringField(9)
+
+
+# class Session(ndb.Model):
+
+#     """Session -- Conference Session object."""
+
+#     name = ndb.StringProperty(required=True)
+#     highlights = ndb.StringProperty(repeated=True)
+#     speaker = ndb.StructuredProperty(Person)
+#     duration = ndb.IntegerProperty()
+#     typeOfSession = ndb.StringProperty(choices=sessionTypeChoices)
+#     date = ndb.DateProperty()
+#     startTime = ndb.TimeProperty()
+
+
+# class SessionForm(messages.Message):
+
+#     """SessionForm -- Session outbound form message."""
+
+#     name = messages.StringField(1)
+#     highlights = messages.StringField(2, repeated=True)
+#     speaker = messages.MessageField(PersonForm, 3)
+#     duration = messages.IntegerField(4)
+#     typeOfSession = messages.StringField(5)
+#     date = messages.StringField(6)
+#     startTime = messages.IntegerField(7)
+    # websafeKey = messages.StringField(8)
     # speakerDisplayName = messages.StringField(9)

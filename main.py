@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 """
-main.py -- Udacity conference server-side Python App Engine
+main.py.
+
+Udacity conference server-side Python App Engine
     HTTP controller handlers for memcache & task queue access
 
 $Id$
@@ -19,11 +21,18 @@ from conference import ConferenceApi
 
 
 class SetAnnouncementHandler(webapp2.RequestHandler):
+
+    """Set Announcement in Memcache."""
+
     def get(self):
         """Set Announcement in Memcache."""
         ConferenceApi._cacheAnnouncement()
 
+
 class SendConfirmationEmailHandler(webapp2.RequestHandler):
+
+    """Send email confirming Conference creation."""
+
     def post(self):
         """Send email confirming Conference creation."""
         mail.send_mail(
