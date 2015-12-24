@@ -15,7 +15,7 @@ created by wesc on 2014 apr 21
 __author__ = 'Youness Assassi'
 
 from datetime import datetime
-
+import logging
 import endpoints
 from protorpc import messages
 from protorpc import message_types
@@ -37,6 +37,7 @@ from models import ConferenceForms
 from models import ConferenceQueryForms
 from models import Session
 from models import SessionForm
+from models import SessionForms
 from models import TeeShirtSize
 from models import StringMessage
 
@@ -52,10 +53,9 @@ MEMCACHE_ANNOUNCEMENTS_KEY = "RECENT_ANNOUNCEMENTS"
 
 DEFAULTS = {
     "city": "Tokyo",
-    "maxAttendees": 0,
+    "maxAttendees": 10,
     "seatsAvailable": 0,
-    "topics": ["Web Technologies", 'Programming Languages'],
-    "typeOfSession": "Lecture"
+    "topics": ["Web Technologies", 'Programming Languages']
 }
 
 OPERATORS = {
@@ -86,6 +86,11 @@ CONF_POST_REQUEST = endpoints.ResourceContainer(
 
 SESS_POST_REQUEST = endpoints.ResourceContainer(
     SessionForm,
+    websafeConferenceKey=messages.StringField(1)
+)
+
+SESS_GET_REQUEST = endpoints.ResourceContainer(
+    message_types.VoidMessage,
     websafeConferenceKey=messages.StringField(1)
 )
 
@@ -256,7 +261,7 @@ class ConferenceApi(remote.Service):
     def getConference(self, request):
         """Return requested conference (by websafeConferenceKey)."""
         # get Conference object from request; bail if not found
-        # print('key: ' + request.websafeConferenceKey)
+        print('key: ' + request.websafeConferenceKey)
         conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
         if not conf:
             raise endpoints.NotFoundException(
@@ -457,11 +462,64 @@ class ConferenceApi(remote.Service):
         """Create new session."""
         return self._createSessionObject(request)
 
-    # @endpoints.method(CONF_GET_REQUEST, ConferenceForm,
-    #                   path='conference/{websafeConferenceKey}',
-    #                   http_method='GET', name='getConference')
-    # def getConferenceSessions(self, request):
-    #     return
+    @endpoints.method(SESS_GET_REQUEST, SessionForms,
+                      path='conference/{websafeConferenceKey}/sesssions',
+                      http_method='GET', name='getConferenceSessions')
+    def getConferenceSessions(self, request):
+        """Return requested sessions (by websafeConferenceKey)."""
+        # get Conference object from request; bail if not found
+        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
+        if not conf:
+            raise endpoints.NotFoundException(
+                'No conference found with key: %s' %
+                request.websafeConferenceKey)
+
+        # create ancestor query for this conference
+        sessions = Session.query(ancestor=ndb.Key
+                                 (urlsafe=request.websafeConferenceKey))
+
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in sessions]
+        )
+
+    @endpoints.method(SESS_POST_REQUEST, SessionForms,
+                      path='conference/{websafeConferenceKey}/sesssionsbytype',
+                      http_method='POST', name='getConferenceSessionsByType')
+    def getConferenceSessionsByType(self, request):
+        """
+        Return requested sessions.
+
+        (by websafeConferenceKey and session type).
+        """
+        # get Conference object from request; bail if not found
+        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
+        if not conf:
+            raise endpoints.NotFoundException(
+                'No conference found with key: %s' %
+                request.websafeConferenceKey)
+
+        # create ancestor query for this conference
+        sessions = Session.query(ancestor=ndb.Key
+                                 (urlsafe=request.websafeConferenceKey))
+        sessions = sessions.filter(Session.typeOfSession ==
+                                   request.typeOfSession)
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in sessions]
+        )
+
+    @endpoints.method(SessionForm, SessionForms,
+                      path='sesssionsbyspeaker',
+                      http_method='POST', name='getSessionsBySpeaker')
+    def getSessionsBySpeaker(self, request):
+        """Return requested sessions (by speaker)."""
+        # create ancestor query for this conference
+        sessions = Session.query()
+        sessions = sessions.filter(Session.speaker ==
+                                   request.speaker)
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in sessions]
+        )
+
 
 # - - - Registration - - - - - - - - - - - - - - - - - - - -
     @ndb.transactional(xg=True)
@@ -577,17 +635,19 @@ class ConferenceApi(remote.Service):
         # get user Profile
         prof = self._getProfileFromUser()
 
+        # log profile details
+        logging.debug('prof {}'.format(prof))
+
         # if saveProfile(), process user-modifyable fields
         if save_request:
             for field in ('displayName', 'teeShirtSize'):
                 if hasattr(save_request, field):
                     val = getattr(save_request, field)
                     if val:
-                        setattr(prof, field, str(val))
-                        # if field == 'teeShirtSize':
-                        #    setattr(prof, field, str(val).upper())
-                        # else:
-                        #    setattr(prof, field, val)
+                        if field == 'teeShirtSize':
+                            setattr(prof, field, str(val).upper())
+                        else:
+                            setattr(prof, field, val)
 
             # put profile to datastore
             prof.put()
@@ -653,6 +713,60 @@ class ConferenceApi(remote.Service):
             announcement = ""
         return StringMessage(data=announcement)
 
+# - - - Playground - - - - - - - - - - - - - - - - - - - -
+    @endpoints.method(message_types.VoidMessage, ConferenceForms,
+                      path='filterPlayground',
+                      http_method='GET', name='filterPlayground')
+    def filterPlayground(self, request):
+        """Return a list of conferences based on the filter below."""
+        field = 'city'
+        operator = '='
+        value = 'Tokyo'
+
+        f = ndb.query.FilterNode(field, operator, value)
+        q = Conference.query().\
+            filter(f).\
+            order(Conference.maxAttendees)
+        # q = q.order(Conference.maxAttendees)
+
+        # q = q.filter(Conference.city == 'Tokyo')
+
+        # q = q.filter(f)
+        # q = q.order(Conference.maxAttendees)
+        # q = q.order(Conference.name)
+
+        return ConferenceForms(
+            items=[self._copyConferenceToForm(conf, '') for conf in q]
+        )
+
+    # @endpoints.method(message_types.VoidMessage, FeaturedSpeakerForm,
+    #                   path='getFeaturedSpeaker',
+    #                   http_method='GET', name='getFeaturedSpeaker')
+    # def getFeaturedSpeaker(self, request):
+    #     """Return the featured speaker."""
+    #     data = memcache.get('featured_speaker')
+    #     if data and data.has_key('speaker') and data.has_key('sessionNames'):
+    #         speaker = data['speaker']
+    #     else:
+    #         new_session = Session.query(Session.data >= datetime.now())
+
+    # def getAnnoucement(self, request):
+    #     return StringMessage(data=memcache.get(MEMCACHE_ANNOUNCCEMENTS_KEY))
+# OPERATORS = {
+#     'EQ': '=',
+#     'GT': '>',
+#     'GTEQ': '>=',
+#     'LT': '<',
+#     'LTEQ': '<=',
+#     'NE': '!='
+# }
+
+# FIELDS = {
+#     'CITY': 'city',
+#     'TOPIC': 'topics',
+#     'MONTH': 'month',
+#     'MAX_ATTENDEES': 'maxAttendees'
+# }
 
 # registers API
 api = endpoints.api_server([ConferenceApi])

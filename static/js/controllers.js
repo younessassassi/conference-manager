@@ -586,6 +586,7 @@ conferenceApp.controllers.controller('ConferenceDetailCtrl', function ($scope, $
                 $scope.loading = false;
                 if (resp.error) {
                     // Failed to get a user profile.
+                    console.log('Failed to get a user profile.')
                 } else {
                     var profile = resp.result;
                     for (var i = 0; i < profile.conferenceKeysToAttend.length; i++) {
@@ -629,7 +630,7 @@ conferenceApp.controllers.controller('ConferenceDetailCtrl', function ($scope, $
                         $scope.messages = 'Registered for the conference';
                         $scope.alertStatus = 'success';
                         $scope.isUserAttending = true;
-                        $scope.conference.seatsAvailable = $scope.conference.seatsAvailable - 1;
+                        $scope.conference.seatsAvailable = parseInt($scope.conference.seatsAvailable) - 1;
                     } else {
                         $scope.messages = 'Failed to register for the conference';
                         $scope.alertStatus = 'warning';
@@ -664,7 +665,7 @@ conferenceApp.controllers.controller('ConferenceDetailCtrl', function ($scope, $
                         // Unregister succeeded.
                         $scope.messages = 'Unregistered from the conference';
                         $scope.alertStatus = 'success';
-                        $scope.conference.seatsAvailable = $scope.conference.seatsAvailable + 1;
+                        $scope.conference.seatsAvailable = parseInt($scope.conference.seatsAvailable) + 1;
                         $scope.isUserAttending = false;
                         $log.info($scope.messages);
                     } else {

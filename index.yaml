@@ -12,10 +12,75 @@ indexes:
 
 - kind: Conference
   properties:
+  - name: NAME
+  - name: maxAttendees
+
+- kind: Conference
+  properties:
+  - name: city
+  - name: maxAttendees
+
+- kind: Conference
+  properties:
+  - name: city
+  - name: maxAttendees
+  - name: month
+  - name: name
+
+- kind: Conference
+  properties:
+  - name: city
+  - name: maxAttendees
+  - name: name
+
+- kind: Conference
+  properties:
+  - name: city
+  - name: month
+  - name: maxAttendees
+  - name: name
+
+- kind: Conference
+  properties:
   - name: city
   - name: name
 
 - kind: Conference
   properties:
-  - name: seatsAvailable
+  - name: maxAttendees
+  - name: month
+  - name: name
+
+- kind: Conference
+  properties:
+  - name: maxAttendees
+  - name: name
+
+- kind: Conference
+  properties:
+  - name: maxAttendees
+  - name: topics
+  - name: name
+  - name: city
+  - name: month
+
+- kind: Conference
+  properties:
+  - name: month
+  - name: maxAttendees
+  - name: name
+
+- kind: Conference
+  properties:
+  - name: month
+  - name: name
+
+- kind: Conference
+  properties:
+  - name: name
+  - name: maxAttendees
+
+- kind: Conference
+  properties:
+  - name: topics
   - name: name

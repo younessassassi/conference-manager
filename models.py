@@ -47,6 +47,7 @@ class ProfileForm(messages.Message):
     displayName = messages.StringField(2)
     mainEmail = messages.StringField(3)
     teeShirtSize = messages.EnumField('TeeShirtSize', 4)
+    conferenceKeysToAttend = messages.StringField(5, repeated=True)
 
 
 class TeeShirtSize(messages.Enum):
@@ -196,6 +197,12 @@ class SessionForm(messages.Message):
     # websafeKey = messages.StringField(8)
     # speakerDisplayName = messages.StringField(9)
 
+
+class SessionForms(messages.Message):
+
+    """SessionForms -- multiple Sessions outbound from message."""
+
+    items = messages.MessageField(SessionForm, 1, repeated=True)
 
 # class Session(ndb.Model):
 
