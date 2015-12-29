@@ -10,6 +10,9 @@ handlers:       # static then dynamic
   static_files: favicon.ico
   upload: favicon\.ico
 
+- url: /vendor
+  static_dir: vendor
+
 - url: /js
   static_dir: static/js
 

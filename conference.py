@@ -383,6 +383,9 @@ class ConferenceApi(remote.Service):
                 if field.name.endswith('Date'):
                     setattr(session, field.name,
                             str(getattr(sess, field.name)))
+                elif field.name.endswith('Time'):
+                    setattr(session, field.name,
+                            str(getattr(sess, field.name)))
                 else:
                     setattr(session, field.name, getattr(sess, field.name))
             # elif field.name == "websafeKey":
@@ -394,19 +397,20 @@ class ConferenceApi(remote.Service):
 
     def _createSessionObject(self, request):
         """Create or update Session object, returning SessionForm/request."""
+        print('request:')
+        print(request)
         # preload necessary data items
+        user = endpoints.get_current_user()
+        if not user:
+            raise endpoints.UnauthorizedException('Authorization required')
+
+        user_id = getUserId(user)
         # get Conference object from request; bail if not found
         conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
         if not conf:
             raise endpoints.NotFoundException(
                 'No conference found with key: %s'
                 % request.websafeConferenceKey)
-
-        user = endpoints.get_current_user()
-        if not user:
-            raise endpoints.UnauthorizedException('Authorization required')
-
-        user_id = getUserId(user)
 
         # check that user is owner
         if user_id != conf.organizerUserId:
@@ -429,12 +433,14 @@ class ConferenceApi(remote.Service):
         #         data[df] = DEFAULTS[df]
         #         setattr(request, df, DEFAULTS[df])
 
-        # convert dates from strings to Date objects;
-        # set month based on start_date
-        if data['date']:
-            data['date'] = datetime.strptime(data['date'][:10],
-                                             "%Y-%m-%d").date()
-
+        # convert date from string to Date object
+        if data['startDate']:
+            data['startDate'] = datetime.strptime(data['startDate'][:10],
+                                                  "%Y-%m-%d").date()
+        # convert time from string to Time object;
+        if data['startTime']:
+            data['startTime'] = datetime.strptime(data['startTime'][:5],
+                                                  "%H:%M").time()
         # generate Session Key based on conference key and session id
         c_key = conf.key
 
@@ -463,7 +469,7 @@ class ConferenceApi(remote.Service):
         return self._createSessionObject(request)
 
     @endpoints.method(SESS_GET_REQUEST, SessionForms,
-                      path='conference/{websafeConferenceKey}/sesssions',
+                      path='conference/{websafeConferenceKey}/sessions',
                       http_method='GET', name='getConferenceSessions')
     def getConferenceSessions(self, request):
         """Return requested sessions (by websafeConferenceKey)."""
@@ -501,8 +507,8 @@ class ConferenceApi(remote.Service):
         # create ancestor query for this conference
         sessions = Session.query(ancestor=ndb.Key
                                  (urlsafe=request.websafeConferenceKey))
-        sessions = sessions.filter(Session.typeOfSession ==
-                                   request.typeOfSession)
+        sessions = sessions.filter(Session.sessionType ==
+                                   request.sessionType)
         return SessionForms(
             items=[self._copySessionToForm(session) for session in sessions]
         )

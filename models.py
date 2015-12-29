@@ -178,8 +178,8 @@ class Session(ndb.Model):
     highlights = ndb.StringProperty(repeated=True)
     speaker = ndb.StringProperty()
     duration = ndb.IntegerProperty()
-    typeOfSession = ndb.StringProperty(choices=sessionTypeChoices)
-    date = ndb.DateProperty()
+    sessionType = ndb.StringProperty(choices=sessionTypeChoices)
+    startDate = ndb.DateProperty()
     startTime = ndb.TimeProperty()
 
 
@@ -191,10 +191,10 @@ class SessionForm(messages.Message):
     highlights = messages.StringField(2, repeated=True)
     speaker = messages.StringField(3)
     duration = messages.IntegerField(4)
-    typeOfSession = messages.StringField(5)
-    date = messages.StringField(6)
-    startTime = messages.IntegerField(7)
-    # websafeKey = messages.StringField(8)
+    sessionType = messages.StringField(5)
+    startDate = messages.StringField(6)
+    startTime = messages.StringField(7)
+    websafeConferenceKey = messages.StringField(8)
     # speakerDisplayName = messages.StringField(9)
 
 
@@ -203,30 +203,3 @@ class SessionForms(messages.Message):
     """SessionForms -- multiple Sessions outbound from message."""
 
     items = messages.MessageField(SessionForm, 1, repeated=True)
-
-# class Session(ndb.Model):
-
-#     """Session -- Conference Session object."""
-
-#     name = ndb.StringProperty(required=True)
-#     highlights = ndb.StringProperty(repeated=True)
-#     speaker = ndb.StructuredProperty(Person)
-#     duration = ndb.IntegerProperty()
-#     typeOfSession = ndb.StringProperty(choices=sessionTypeChoices)
-#     date = ndb.DateProperty()
-#     startTime = ndb.TimeProperty()
-
-
-# class SessionForm(messages.Message):
-
-#     """SessionForm -- Session outbound form message."""
-
-#     name = messages.StringField(1)
-#     highlights = messages.StringField(2, repeated=True)
-#     speaker = messages.MessageField(PersonForm, 3)
-#     duration = messages.IntegerField(4)
-#     typeOfSession = messages.StringField(5)
-#     date = messages.StringField(6)
-#     startTime = messages.IntegerField(7)
-    # websafeKey = messages.StringField(8)
-    # speakerDisplayName = messages.StringField(9)
