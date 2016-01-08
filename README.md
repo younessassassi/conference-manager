@@ -1,4 +1,5 @@
 # App Engine application for the Udacity training course.
+### [Conference Feature Demo][7]
 
 # Table of contents
 - [Technologies](#technologies)
