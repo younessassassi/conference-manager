@@ -572,7 +572,7 @@ class ConferenceApi(remote.Service):
                       http_method='POST', name='getSessionsBySpeaker')
     def getSessionsBySpeaker(self, request):
         """Return requested sessions (by speaker)."""
-        # create ancestor query for this conference
+        # create a Session query
         sessions = Session.query()
         sessions = sessions.filter(Session.speaker ==
                                    request.speaker)
@@ -586,7 +586,7 @@ class ConferenceApi(remote.Service):
                       http_method='POST', name='getSessionsBySpeakerOfType')
     def getSessionsBySpeakerOfType(self, request):
         """Return requested sessions (by speaker and type)."""
-        # create ancestor query for this conference
+        # create a Session Query
         sessions = Session.query()
         sessions = sessions.filter(Session.speaker ==
                                    request.speaker)
@@ -603,9 +603,9 @@ class ConferenceApi(remote.Service):
         """
         Return requested sessions.
 
-        (starting after a certain date and time).
+        (starting after a certain time).
         """
-        # create ancestor query for this conference
+        # create a Session query
         sessions = Session.query()
 
         # convert time from string to Time object;

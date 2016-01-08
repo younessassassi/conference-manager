@@ -1,3 +1,12 @@
+#!/usr/bin/env python
+
+"""
+utils.py.
+
+Udacity conference server-side Python App Engine app utils.py
+
+"""
+
 import json
 import os
 import time
@@ -8,6 +17,7 @@ from models import Conference
 
 
 def getUserId(user, id_type="email"):
+    """Get User Id."""
     if id_type == "email":
         return user.email()
 

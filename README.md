@@ -1,10 +1,10 @@
 # App Engine application for the Udacity training course.
 
 # Table of contents
-- [Technologies](# technologies)
-- [Summary](# Summary)
-- [Design Decisions](# Design-Decisions)
-- [Setup Instructions](# setup-instructions)
+- [Technologies](#technologies)
+- [Summary](#summary)
+- [Design Decisions](#design-decisions)
+- [Setup Instructions](#setup-instructions)
 
 
 # Technologies
@@ -68,7 +68,7 @@ Let’s say that you don't like workshops and you don't like sessions after 7 pm
 
 Problem Solution:
 This is an example of two inequality filters which are not allowed.
-The way I would address this issue is by
+The way I would address this issue is by using a range of hours before 7pm or a list of session types that does not include the session type in question which allow me to use the IN query.
 
 
 # Setup Instructions
