@@ -1,5 +1,6 @@
 # App Engine application for the Udacity training course.
 ### [Conference Feature Demo][7]
+### [API Explorer][8]
 
 # Table of contents
 - [Technologies](#technologies)
@@ -21,7 +22,9 @@
 # Summary
 This project is an implementation of the Google Cloud Endpoints API which enables the following functionality:
 
-Some of the APIs can be tested using [this application][7]
+Some of the APIs can be tested using [this application][7].
+
+The [API explorer][8] allows you to test all of the webservice APIs.
 
 1. Register and login using a Google Account
 
@@ -48,7 +51,18 @@ Some of the APIs can be tested using [this application][7]
 
 A `Session` is an entity model with a conference as its parent under which it was created.  The intent is to easily retrieve sessions belonging to a specific conference.
 
-The speaker is a property string of the `Session` entity for simplicity.
+The Session model subclasses ndb.Model class and consists of the following properties:
+    - name, a required String property representing the name of the session
+    - highlights, a repeated String property representing the session highlights
+    - speaker, a String property which contains the speaker name
+    - duration, an Integer property representing session duration in minutes
+    - sessionType, a String property with a predefined set of choices for the user to select from.
+    - startDate, a Date property representing the start date of the session
+    - startTime, a Time property representing the start time of the session
+
+The SessionForm model subclasses messages.Message class and consists of string field classes to efficiently transmit the calls across the networl or process space.
+
+I decided to keep the speaker as a string property of the session class instead of its model to keep the project simpler. I realize that I will lose a lot of flexibility by not separating the speaker and the session, but unfortunately my job responsibilities are keeping me from spending more time on this project.
 
 ## *Addional Queries*
 
@@ -68,8 +82,9 @@ Problem Description:
 Let’s say that you don't like workshops and you don't like sessions after 7 pm. How would you handle a query for all non-workshop sessions before 7 pm? What is the problem for implementing this query? What ways to solve it did you think of?
 
 Problem Solution:
-This is an example of two inequality filters which are not allowed.
-The way I would address this issue is by using a range of hours before 7pm or a list of session types that does not include the session type in question which allow me to use the IN query.
+This is an example of inequality filters (non-workshop sessions and before 7 pm) applied to two fields within the same query.  Inequality filters can only be applied to one field within the same query.
+
+The way I would address this issue is by first getting all sessions that are not of type worshop using one inequality filter, sort the results by time, then remove the sessions that are after 7pm.
 
 
 # Setup Instructions
@@ -96,3 +111,4 @@ The way I would address this issue is by using a range of hours before 7pm or a 
 [5]: https://localhost:8080/
 [6]: https://developers.google.com/appengine/docs/python/endpoints/endpoints_tool
 [7]: http://conference-central-1099.appspot.com/
+[8]: https://apis-explorer.appspot.com/apis-explorer/?base=https://conference-central-1099.appspot.com/_ah/api#p/conference/v1/
