@@ -3,15 +3,11 @@
 """
 models.py.
 
-Udacity conference server-side Python App Engine data & ProtoRPC models
-
-$Id: models.py,v 1.1 2014/05/24 22:01:10 wesc Exp $
-
-created/forked from conferences.py by wesc on 2014 may 24
+Conference server-side Python App Engine data & ProtoRPC models
 
 """
 
-__author__ = 'wesc+api@google.com (Wesley Chun)'
+__author__ = 'youness.assassi@gmail.com (Youness Assassi)'
 
 import httplib
 import endpoints
@@ -155,23 +151,6 @@ class StringMessage(messages.Message):
     data = messages.StringField(1, required=True)
 
 
-# class Person(ndb.Model):
-
-#     """Person -- Person Object."""
-
-#     name = ndb.StringProperty(required=True)
-#     email = ndb.StringProperty()
-#     sessionsKeys = ndb.StringProperty(repeated=True)
-
-
-# class PersonForm(messages.Message):
-
-#     """PersonForm -- Person outbound form message."""
-
-#     name = messages.StringField(1)
-#     email = messages.StringField(2)
-
-
 class Session(ndb.Model):
 
     """Session -- Conference Session object."""
@@ -197,7 +176,7 @@ class SessionForm(messages.Message):
     startDate = messages.StringField(6)
     startTime = messages.StringField(7)
     websafeConferenceKey = messages.StringField(8)
-    # speakerDisplayName = messages.StringField(9)
+    websafeKey = messages.StringField(9)
 
 
 class SessionForms(messages.Message):
