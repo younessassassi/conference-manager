@@ -51,18 +51,26 @@ The [API explorer][8] allows you to test all of the webservice APIs.
 
 A `Session` is an entity model with a conference as its parent under which it was created.  The intent is to easily retrieve sessions belonging to a specific conference.
 
-The Session model subclasses ndb.Model class and consists of the following properties:
+The Session model subclasses the ndb.Model class and consists of the following properties:
+
     - name, a required String property representing the name of the session
+
     - highlights, a repeated String property representing the session highlights
+
     - speaker, a String property which contains the speaker name
+
     - duration, an Integer property representing session duration in minutes
+
     - sessionType, a String property with a predefined set of choices for the user to select from.
+
     - startDate, a Date property representing the start date of the session
+
     - startTime, a Time property representing the start time of the session
 
-The SessionForm model subclasses messages.Message class and consists of string field classes to efficiently transmit the calls across the networl or process space.
 
-I decided to keep the speaker as a string property of the session class instead of its model to keep the project simpler. I realize that I will lose a lot of flexibility by not separating the speaker and the session, but unfortunately my job responsibilities are keeping me from spending more time on this project.
+The SessionForm model subclasses messages.Message class and consists of string field classes to efficiently transmit the calls across the network or process space.
+
+I decided to keep the speaker as a string property of the session model instead of its model to keep the project simpler. I realize that I will lose a lot of flexibility by not separating the speaker and the session, but unfortunately my job responsibilities are keeping me from spending more time on this project.
 
 ## *Addional Queries*
 
