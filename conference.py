@@ -462,25 +462,11 @@ class ConferenceApi(remote.Service):
         session = Session(**data)
         session.put()
 
-        # check if speaker name should be featured
-        speakerName = data['speaker']
-
-        # create ancestor query for this conference
-        sessionQuery = Session.query(ancestor=ndb.Key
-                                     (urlsafe=wsck))
-        sessions = sessionQuery.filter(Session.speaker == speakerName)
-
-        if sessions.count() > 1:
-            # get session names where the speaker is speaking
-            sessionNames = []
-            for session in sessions:
-                # Add session names
-                sessionNames.append(session.name)
-            sessionNamesSting = ', '.join(str(x) for x in sessionNames)
-            taskqueue.add(params={
-                "speaker": speakerName,
-                "sessionNames": sessionNamesSting},
-                url='/tasks/set_featured_speaker')
+        # set a taskqueue to set the featured speaker
+        taskqueue.add(params={
+            "speaker": data['speaker'],
+            "wsck": wsck},
+            url='/tasks/set_featured_speaker')
 
         return self._copySessionToForm(session)
 
@@ -866,14 +852,29 @@ class ConferenceApi(remote.Service):
 
         used by memcache cron job & putAnnouncement().
         """
-        # create the announcement
-        announcement = '%s %s %s %s' % (
-            'Our featured speaker is ',
-            request.get('speaker'),
-            'for the following sessions',
-            request.get('sessionNames'))
+        # check if speaker name should be featured
+        speakerName = request.get('speaker')
 
-        memcache.set(MEMCACHE_FEATURED_SPEAKER_KEY, announcement)
+        # create ancestor query for this conference
+        sessionQuery = Session.query(ancestor=ndb.Key
+                                     (urlsafe=request.get('wsck')))
+        sessions = sessionQuery.filter(Session.speaker == speakerName)
+
+        if sessions.count() > 1:
+            # get session names where the speaker is speaking
+            sessionNames = []
+            for session in sessions:
+                # Add session names
+                sessionNames.append(session.name)
+            sessionNamesSting = ', '.join(str(x) for x in sessionNames)
+            # create the announcement
+            announcement = '%s %s %s %s' % (
+                'Our featured speaker is ',
+                speakerName,
+                'for the following sessions',
+                sessionNamesSting)
+
+            memcache.set(MEMCACHE_FEATURED_SPEAKER_KEY, announcement)
 
     @endpoints.method(message_types.VoidMessage, StringMessage,
                       path="speaker/featured",
